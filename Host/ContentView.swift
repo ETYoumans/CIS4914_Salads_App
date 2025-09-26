@@ -1,21 +1,29 @@
-//
-//  ContentView.swift
-//  LSDetector
-//
-//  Created by Youmans, Ethan T. on 9/25/25.
-//
+/*
+
+ContentView
+
+Objectives:
+- Handles the main user interface of the app
+
+*/
 
 import SwiftUI
 
 struct ContentView: View {
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        TabView {
+            Tab("Status", systemImage: "wifi") {
+                StatusView()
+            }
+
+            Tab("Settings", systemImage: "gear") {
+                SettingsView()
+            }
+
+            Tab("Logs", systemImage: "list.bullet") {
+                LogsView()
+            }
         }
-        .padding()
     }
 }
 
