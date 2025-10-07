@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct ContentView: View {
+    @State private var selectedTab = "Monitor"  // Initial tab
     
     //need dynamic input
     let events: [LocationEvent] = [
@@ -26,9 +27,57 @@ struct ContentView: View {
             deviceType: "Mobile",
             location: "Gainesville, FL",
             severity: .medium
+        ),
+        LocationEvent(
+            title: "Find My",
+            subtitle: "location accessed",
+            time: "12:11 PM",
+            deviceType: "Mobile",
+            location: "Gainesville, FL",
+            severity: .low
         )
     ]
     //
+    var body: some View {
+            ZStack {
+                Color(hex:"#D9D9D9")
+                    .ignoresSafeArea()
+                
+                VStack {
+                    TopBarView()
+                    
+                    // Tabs with binding to selectedTab
+                    TabsView(selectedTab: $selectedTab)
+                    
+                    // Switch main content based on tab
+                    Group {
+                        if selectedTab == "Monitor" {
+                            MonitoringCard()
+                            StatusBar()
+                            HStack {
+                                Text("Recent Activity")
+                                Spacer()
+                            }
+                            .padding(.top, 15)
+                            
+                            VStack(spacing: 12) {
+                                ForEach(events) { event in
+                                    LocationEventCard(event: event)
+                                }
+                            }
+                        } else if selectedTab == "Setting" {
+                            // Replace this with your Settings view content
+                            SettingsView()
+                        }
+                    }
+                    
+                    Spacer()
+                }
+                .padding()
+            }
+        }
+
+    /*
     var body: some View {
         ZStack{
             Color(hex:"#D9D9D9")
@@ -56,6 +105,7 @@ struct ContentView: View {
         }
 
     }
+    */
 }
 struct TopBarView: View {
     var body: some View {
@@ -77,6 +127,7 @@ struct TopBarView: View {
         }
     }
 }
+/*
 struct TabsView: View {
     var body: some View {
         HStack(spacing: 0) {
@@ -100,6 +151,37 @@ struct TabsView: View {
         .padding()
     }
 }
+ */
+struct TabsView: View {
+    @Binding var selectedTab: String  // Track current tab
+    
+    var body: some View {
+        HStack(spacing: 0) {
+            tabButton(title: "Monitor")
+            tabButton(title: "Setting")
+        }
+        .frame(height: 30)
+        .background(Color.gray.opacity(0.3))
+        .clipShape(RoundedRectangle(cornerRadius: 20))
+        .padding(.top,20)
+        .padding(.bottom,16)
+    }
+    
+    private func tabButton(title: String) -> some View {
+        Button(action: {
+            selectedTab = title
+        }) {
+            Text(title)
+                .fontWeight(selectedTab == title ? .bold : .regular)
+                .frame(maxWidth: .infinity)
+                .padding()
+                .background(selectedTab == title ? Color.white : Color.gray.opacity(0.4))
+                .cornerRadius(20)
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
+}
+
 struct MonitoringCard: View {
     @State private var isMonitoringOn: Bool = true
     var body: some View {
