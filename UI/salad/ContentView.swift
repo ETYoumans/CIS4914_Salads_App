@@ -32,6 +32,7 @@ struct ContentView: View {
     var body: some View {
         ZStack{
             Color(hex:"#D9D9D9")
+                .ignoresSafeArea()
             
             VStack {
                 TopBarView()
@@ -49,10 +50,6 @@ struct ContentView: View {
                     }
                 }
                 Spacer()
-                Image(systemName: "globe")
-                    .imageScale(.large)
-                    .foregroundStyle(.tint)
-                Text("Hello, world!")
             }
             .padding()
             
@@ -68,10 +65,15 @@ struct TopBarView: View {
                 .bold()
                 .foregroundColor(Color(hex: "0429FD"))
             Spacer()
+            //Can be use to distinguish between unread message
+            //Image(systemName: "bell.badge")
+            Image(systemName: "bell.fill")
+                .font(.system(size: 28))
+/*
             Image("bell_icon")
                 .resizable()
                 .frame(width:50, height:50)
-            
+  */
         }
     }
 }
@@ -155,7 +157,7 @@ struct StatusBar: View {
                     .foregroundColor(.red)
                     .bold()
                 Text("High Risk Today")
-                    .font(.subheadline)
+                    .font(.system(size: 13,weight:.medium))
                     .foregroundColor(.brown)
             }
             .frame(maxWidth: .infinity)
@@ -174,7 +176,7 @@ struct StatusBar: View {
                     .foregroundColor(.blue)
                     .bold()
                 Text("Total Access Today")
-                    .font(.subheadline)
+                    .font(.system(size: 13,weight:.medium))
                     .foregroundColor(.brown)
             }
             .frame(maxWidth: .infinity)
@@ -184,17 +186,18 @@ struct StatusBar: View {
         }
         .padding()
         .background(Color.gray.opacity(0.2))
+        .cornerRadius(10)
     }
 }
-struct other: View {
+struct placeholder: View {
     var body: some View {
         HStack{
-            Text("Moitor")
+            Text("nope")
                 .font(.system(size: 30))
                 .bold()
                 .foregroundColor(.blue)
             Spacer()
-            Text("Setting")
+            Text("nope")
                 .font(.system(size: 30))
                 .bold()
                 .foregroundColor(.blue)
@@ -206,43 +209,7 @@ struct other: View {
 #Preview {
     ContentView()
 }
-extension Color {
-    init(hex: String) {
-        let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
-        var int: UInt64 = 0
-        Scanner(string: hex).scanHexInt64(&int)
 
-        let a, r, g, b: UInt64
-        switch hex.count {
-        case 3: // RGB (12-bit)
-            (a, r, g, b) = (255,
-                (int >> 8) * 17,
-                (int >> 4 & 0xF) * 17,
-                (int & 0xF) * 17)
-        case 6: // RGB (24-bit)
-            (a, r, g, b) = (255,
-                int >> 16,
-                int >> 8 & 0xFF,
-                int & 0xFF)
-        case 8: // ARGB (32-bit)
-            (a, r, g, b) = (
-                int >> 24,
-                int >> 16 & 0xFF,
-                int >> 8 & 0xFF,
-                int & 0xFF)
-        default:
-            (a, r, g, b) = (255, 0, 0, 0)
-        }
-
-        self.init(
-            .sRGB,
-            red: Double(r) / 255,
-            green: Double(g) / 255,
-            blue: Double(b) / 255,
-            opacity: Double(a) / 255
-        )
-    }
-}
 
 
 /////
