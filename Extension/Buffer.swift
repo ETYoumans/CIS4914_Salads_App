@@ -14,17 +14,41 @@ Notes: Use assertions to verify assumptions in the code, such as input validatio
 
 */
 
+/*
+struct DataPacket {
+    let rawData: Data               // Original packet data
+    let timestamp: String           // Time the packet was captured
+    let protocolName: String        // TCP, UDP, ICMP, etc.
+    let srcAddress: String          // Source IP
+    let srcPort: Int?               // Source port (nil if not TCP/UDP)
+    let dstAddress: String          // Destination IP
+    let dstPort: Int?               // Destination port (nil if not TCP/UDP)
+    let payload: Data 
+}
+*/
+
 class Buffer {
     private var packets: [DataPacket] = []
     private let bufferTimeInterval: TimeInterval
 
     init(bufferTimeInterval: TimeInterval) {
         self.bufferTimeInterval = bufferTimeInterval
+        startCleanupTimer()
     }
 
     func addPacket(_ packet: DataPacket) {
         packets.append(packet)
         // Remove old packets
+    }
+
+    func startCleanupTimer() {
+        cleanupTimer = Timer.scheduledTimer(withTimeInterval: bufferTimeInterval, repeats: true) { weak self _ in
+            self?.removeExpiredPackets()
+        }
+    }
+
+    func removeExpiredPackets() {
+        // remove the expired packets based on timestamp
     }
 
     func getCurrentBuffer() -> [DataPacket] {
