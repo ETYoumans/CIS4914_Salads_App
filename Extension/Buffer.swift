@@ -30,10 +30,13 @@ struct DataPacket {
 class Buffer {
     private var packets: [DataPacket] = []
     private let bufferTimeInterval: TimeInterval
+    private let scheduler: Scheduler
+    //private var startPacket: DataPacket? = nil
 
     init(bufferTimeInterval: TimeInterval) {
         self.bufferTimeInterval = bufferTimeInterval
-        startCleanupTimer()
+        self.scheduler = Scheduler(timeInterval: TimeInterval)
+        scheduler.startTimer()
     }
 
     func addPacket(_ packet: DataPacket) {
@@ -55,9 +58,39 @@ class Buffer {
         return packets
     }
 
+    func schedulerTick() -> batch: [DataPacket], endPacket: DataPacket {
+
+        //startPacket = nil
+        return (batch: packets, endPacket: packets.last)
+    }
+
+    func snapshot(toCursor: Int) {
+        return packets[0 ..< toCursor]
+    }
+
+    func chop(startPacket: DataPacket?, endPacket: DataPacket) {
+        if (startPacket != nil) {
+            if let startIndex = packetPartitions.firstIndex(where: { $0 === startPacket }) + 1,
+                let endIndex = packetPartitions.firstIndex(where: { $0 === endPacket }),
+                startIndex <= endIndex {
+                    packetPartitions.removeSubrange(startIndex...endIndex)
+            }
+        } else {
+            if let startIndex = 0,
+                let endIndex = packetPartitions.firstIndex(where: { $0 === endPacket }),
+                startIndex <= endIndex {
+                    packetPartitions.removeSubrange(startIndex...endIndex)
+            }
+        }
+    }
+
     func checkConditions() -> Bool {
         // Implement condition checks (e.g., number of packets, packet rate)
         return false
+    }
+
+    func commit(cursorIndex: Int) {
+        packets.removeFirst(cursorIndex)
     }
 
     func clearBuffer() {
@@ -65,3 +98,48 @@ class Buffer {
     }
 
 }
+
+class Scheduler [
+
+    weak var buffer: Buffer?
+    private let timeInterval: TimeInterval
+    private let MLEndpoint: String
+    private var packetPartitions: [DataPacket]
+
+    init (timeInterval: TimeInterval) {
+        self.bufferTimeInterval = timeInterval
+    }
+
+    func start() {
+        timer = Timer.scheduledTimer(withTimeInterval: bufferTimeInterval, repeats: true) { weak self _ in
+            var startPacket: DataPacket = packetPartitions.last
+            var tickResult = buffer.schedulerTick()
+            packetPartitions.append(tickResult.endPacket)
+
+            callModel(batch: tickResult.batch, endPacket: tickResult.endPacket)
+            self?.removeExpiredPackets()
+        }
+    }
+
+    func callModel(batch: DataPacket, endPacket: DataPacket){
+        var result: Bool = false
+        while (result == false) {
+            // result = **CALL THE ML MODEL AND PASS IN batch**
+            // DELETE BELOW ONCE ROUTING TO ML MODEL IS DONE
+            result = true
+        }
+
+        if (packetPartitions.size == 1){
+            buffer.chop(startPacket: nil, endPacket: endPacket)
+        } else {
+            buffer.chop(startPacket: packetPartitions[endIndex - 1], endPacket: endPacket)
+        }
+        
+    }
+
+    func stop() {
+        timer?.invalidate()
+    }
+
+
+]
