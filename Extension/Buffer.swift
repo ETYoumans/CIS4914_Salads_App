@@ -36,6 +36,7 @@ class Buffer {
     init(bufferTimeInterval: TimeInterval, bufferMaxSize: Int) {
         self.bufferTimeInterval = bufferTimeInterval
         self.bufferMaxSize = bufferMaxSize
+        lastBatchTime = Date()
     }
 
     func addPacket(_ packet: DataPacket) {
