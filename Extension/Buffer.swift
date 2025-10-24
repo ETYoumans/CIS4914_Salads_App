@@ -32,11 +32,6 @@ class Buffer {
     private let bufferTimeInterval: TimeInterval
     private let bufferMaxSize: Int
     private var lastBatchTime: TimeInterval
-    private let scheduler: Scheduler
-    weak var scheduler: Scheduler?
-
-
-    //private var startPacket: DataPacket? = nil
 
     init(bufferTimeInterval: TimeInterval, bufferMaxSize: Int) {
         self.bufferTimeInterval = bufferTimeInterval
