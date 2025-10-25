@@ -1,28 +1,22 @@
-/*
-
-ContentView
-
-Objectives:
-- Handles the main user interface of the app
-
-*/
-
 import SwiftUI
 
 struct ContentView: View {
     var body: some View {
         TabView {
-            Tab("Status", systemImage: "wifi") {
-                StatusView()
-            }
+            StatusView()
+                .tabItem {
+                    Label("Status", systemImage: "wifi")
+                }
 
-            Tab("Settings", systemImage: "gear") {
-                SettingsView()
-            }
+            SettingsView()
+                .tabItem {
+                    Label("Settings", systemImage: "gear")
+                }
 
-            Tab("Logs", systemImage: "list.bullet") {
-                LogsView()
-            }
+            LogView()
+                .tabItem {
+                    Label("Logs", systemImage: "list.bullet")
+                }
         }
     }
 }
@@ -30,3 +24,5 @@ struct ContentView: View {
 #Preview {
     ContentView()
 }
+
+

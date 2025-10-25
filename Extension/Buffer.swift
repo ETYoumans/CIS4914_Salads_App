@@ -29,35 +29,33 @@ struct DataPacket {
 
 class Buffer {
     private var packets: [DataPacket] = []
-    private let bufferTimeInterval: TimeInterval
-    private let bufferMaxSize: Int
-    private var lastBatchTime: TimeInterval
+    private let bufferTimeInterval: Float
 
-    init(bufferTimeInterval: TimeInterval, bufferMaxSize: Int) {
+    init(bufferTimeInterval: Float) {
         self.bufferTimeInterval = bufferTimeInterval
-        self.bufferMaxSize = bufferMaxSize
-        lastBatchTime = Date()
+        startCleanupTimer()
     }
 
     func addPacket(_ packet: DataPacket) {
         packets.append(packet)
+        // Remove old packets
+    }
+
+    func startCleanupTimer() {
+
+    }
+
+    func removeExpiredPackets() {
+        // remove the expired packets based on timestamp
     }
 
     func getCurrentBuffer() -> [DataPacket] {
-        lastBatchTime = Date()
         return packets
     }
 
     func checkConditions() -> Bool {
-        if packets.count >  bufferMaxSize || Date().timeIntervalSince(lastBatchTime) > bufferTimeInterval {
-            return true
-        } else {
-            return false
-        }
-    }
-
-    func commit(cursorIndex: Int) {
-        packets.removeFirst(cursorIndex)
+        // Implement condition checks (e.g., number of packets, packet rate)
+        return false
     }
 
     func clearBuffer() {

@@ -16,7 +16,9 @@ struct StatusView: View {
     var body: some View {
         VStack {
             Text("VPN Status: Connected")
-            
+            Button("Start VPN") {
+                VPNManager.shared.startTunnel()
+            }
         }
     }
 }

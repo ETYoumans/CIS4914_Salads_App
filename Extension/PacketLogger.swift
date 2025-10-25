@@ -24,7 +24,7 @@ class PacketLogger {
 
     }
 
-    func logPacketBag(_ packets: [DataPacket]) {
+    func logPacketBag(_: [DataPacket]) {
         // Log a bag of packets to file
     }
 
