@@ -10,6 +10,7 @@ import SwiftUI
 struct ContentView: View {
     @State private var selectedTab = "Monitor"  // Initial tab
     
+    
     //need dynamic input
     let events: [LocationEvent] = [
         LocationEvent(
@@ -75,6 +76,10 @@ struct ContentView: View {
                 }
                 .padding()
             }
+            .onAppear{print("testing...")
+                    testLogging()
+            }
+        
         }
 
     /*
