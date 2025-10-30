@@ -9,8 +9,8 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var selectedTab = "Monitor"  // Initial tab
-    
-    
+    @State private var events: [LocationEvent] = []
+    /*
     //need dynamic input
     let events: [LocationEvent] = [
         LocationEvent(
@@ -37,7 +37,29 @@ struct ContentView: View {
             location: "Gainesville, FL",
             severity: .low
         )
-    ]
+    ]*/
+    private func loadAndConvertLogs() {
+            let logs = loadLogs()
+            print("Loaded \(logs.count) logs")
+
+            self.events = logs.map { log in
+                let severity: Severity
+                switch log.severity {
+                case .high: severity = .high
+                case .medium: severity = .medium
+                case .low: severity = .low
+                }
+
+                return LocationEvent(
+                    title: log.title,
+                    subtitle: log.subtitle,
+                    time: log.time,
+                    deviceType: log.deviceType,
+                    location: log.location,
+                    severity: severity
+                )
+            }
+        }
     //
     var body: some View {
             ZStack {
@@ -78,6 +100,8 @@ struct ContentView: View {
             }
             .onAppear{print("testing...")
                     testLogging()
+                //deleteOldLogsFile()
+                loadAndConvertLogs()
             }
         
         }
