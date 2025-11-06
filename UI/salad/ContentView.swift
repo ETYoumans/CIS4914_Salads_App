@@ -76,7 +76,7 @@ struct ContentView: View {
                     Group {
                         if selectedTab == "Monitor" {
                             MonitoringCard()
-                            StatusBar()
+                            StatusBar(events: $events)
                             HStack {
                                 Text("Recent Activity")
                                 Spacer()
@@ -100,7 +100,7 @@ struct ContentView: View {
             }
             .onAppear{print("testing...")
                     testLogging()
-                //deleteOldLogsFile()
+                deleteOldLogsFile()
                 loadAndConvertLogs()
             }
         
@@ -259,11 +259,20 @@ struct RecentActivity: View {
     }
 }
 struct StatusBar: View {
+    @Binding var events: [LocationEvent] // Use a Binding to the events array from ContentView
+    var highRiskCount: Int {
+            events.filter { $0.severity == .high }.count
+        }
+        
+    var totalCount: Int {
+        events.count
+    }
+
     var body: some View {
         HStack(spacing: 16) {
             // Left block: High Risk Today
             VStack {
-                Text("4")
+                Text("\(highRiskCount)")
                     .font(.title)
                     .foregroundColor(.red)
                     .bold()
@@ -282,7 +291,7 @@ struct StatusBar: View {
 
             // Right block: Total Access Today
             VStack {
-                Text("11")
+                Text("\(totalCount)")
                     .font(.title)
                     .foregroundColor(.blue)
                     .bold()
