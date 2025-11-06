@@ -26,7 +26,7 @@ struct DataPacket {
     let payload: Data 
 }
 */
-
+/*
 class Buffer {
     private var packets: [DataPacket] = []
     private let bufferTimeInterval: Float
@@ -63,3 +63,4 @@ class Buffer {
     }
 
 }
+*/

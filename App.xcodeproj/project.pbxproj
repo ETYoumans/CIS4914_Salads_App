@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		CE8B580A2EBD2AE6006ACF6C /* NetworkExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CEE237F02E9DC56300A41E7A /* NetworkExtension.framework */; };
+		CE8B580B2EBD2AE6006ACF6C /* NetworkExtension.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = CEE237F02E9DC56300A41E7A /* NetworkExtension.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		CE9E39AF2EBAB1E90026BF2A /* Filter.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE9E39AE2EBAB1E90026BF2A /* Filter.swift */; };
 		CEE237E32E9DC1FF00A41E7A /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEE237DC2E9DC1FF00A41E7A /* SettingsView.swift */; };
 		CEE237E42E9DC1FF00A41E7A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CEE237DD2E9DC1FF00A41E7A /* Assets.xcassets */; };
 		CEE237E52E9DC1FF00A41E7A /* StatusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEE237DE2E9DC1FF00A41E7A /* StatusView.swift */; };
@@ -14,7 +17,6 @@
 		CEE237E72E9DC1FF00A41E7A /* VPNManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEE237E02E9DC1FF00A41E7A /* VPNManager.swift */; };
 		CEE237E82E9DC1FF00A41E7A /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEE237E12E9DC1FF00A41E7A /* ContentView.swift */; };
 		CEE237E92E9DC1FF00A41E7A /* Host.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEE237E22E9DC1FF00A41E7A /* Host.swift */; };
-		CEE237F12E9DC56300A41E7A /* NetworkExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CEE237F02E9DC56300A41E7A /* NetworkExtension.framework */; };
 		CEE237F92E9DC56300A41E7A /* Extension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = CEE237EE2E9DC56300A41E7A /* Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		CEE238032E9DC69200A41E7A /* MLHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEE237FE2E9DC69200A41E7A /* MLHandler.swift */; };
 		CEE238042E9DC69200A41E7A /* PacketTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEE237FF2E9DC69200A41E7A /* PacketTunnelProvider.swift */; };
@@ -34,6 +36,17 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		CE8B580C2EBD2AE6006ACF6C /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				CE8B580B2EBD2AE6006ACF6C /* NetworkExtension.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		CEE237FD2E9DC56300A41E7A /* Embed Foundation Extensions */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -49,6 +62,7 @@
 
 /* Begin PBXFileReference section */
 		CE7CA93E2EA1B2BA00568FB0 /* App.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = App.entitlements; sourceTree = "<group>"; };
+		CE9E39AE2EBAB1E90026BF2A /* Filter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Filter.swift; sourceTree = "<group>"; };
 		CEE237C82E9DC0CD00A41E7A /* App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = App.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CEE237DC2E9DC1FF00A41E7A /* SettingsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		CEE237DD2E9DC1FF00A41E7A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -80,7 +94,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CEE237F12E9DC56300A41E7A /* NetworkExtension.framework in Frameworks */,
+				CE8B580A2EBD2AE6006ACF6C /* NetworkExtension.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -133,6 +147,7 @@
 			isa = PBXGroup;
 			children = (
 				CEE238002E9DC69200A41E7A /* Buffer.swift */,
+				CE9E39AE2EBAB1E90026BF2A /* Filter.swift */,
 				CEE237FE2E9DC69200A41E7A /* MLHandler.swift */,
 				CEE238012E9DC69200A41E7A /* NotificationHandler.swift */,
 				CEE238022E9DC69200A41E7A /* PacketLogger.swift */,
@@ -172,6 +187,7 @@
 				CEE237EA2E9DC56300A41E7A /* Sources */,
 				CEE237EB2E9DC56300A41E7A /* Frameworks */,
 				CEE237EC2E9DC56300A41E7A /* Resources */,
+				CE8B580C2EBD2AE6006ACF6C /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -257,6 +273,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				CEE238042E9DC69200A41E7A /* PacketTunnelProvider.swift in Sources */,
+				CE9E39AF2EBAB1E90026BF2A /* Filter.swift in Sources */,
 				CEE238062E9DC69200A41E7A /* NotificationHandler.swift in Sources */,
 				CEE238032E9DC69200A41E7A /* MLHandler.swift in Sources */,
 				CEE238072E9DC69200A41E7A /* PacketLogger.swift in Sources */,

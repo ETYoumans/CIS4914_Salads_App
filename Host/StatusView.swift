@@ -19,6 +19,9 @@ struct StatusView: View {
             Button("Start VPN") {
                 VPNManager.shared.startTunnel()
             }
+            Button("Status") {
+                VPNManager.shared.status()
+            }
         }
     }
 }
