@@ -31,20 +31,25 @@ class Buffer {
     private var packets: [DataPacket] = []
     private let bufferTimeInterval: TimeInterval
     private let bufferDropInterval: TimeInterval
+    
+    // Must be less than bufferTimeInterval
+    private let bufferCooldownInterval: TimeInterval
     private let bufferMaxSize: Int
     private var lastBatchTime: TimeInterval
 
-    init(bufferTimeInterval: TimeInterval, bufferDropInterval: TimeInterval, bufferMaxSize: Int) {
+    init(bufferTimeInterval: TimeInterval, bufferDropInterval: TimeInterval, bufferCooldownInterval: TimeInterval, bufferMaxSize: Int) {
         self.bufferTimeInterval = bufferTimeInterval
         self.bufferDropInterval = bufferDropInterval
+        self.bufferCooldownInterval = bufferCooldownInterval
         self.bufferMaxSize = bufferMaxSize
         lastBatchTime = Date()
     }
 
     func addPacket(_ packet: DataPacket) {
         packets.append(packet)
+        date: Date = Date()
         for (p : packets){
-            if (p.rawTimestamp + bufferDropInterval < Date()) {
+            if (date.timeIntervalSince(p.rawTimestamp) > bufferDropInterval) {
                 packets.removeFirst()
             } else {
                 break
@@ -58,7 +63,8 @@ class Buffer {
     }
 
     func checkConditions() -> Bool {
-        if packets.count >  bufferMaxSize || Date().timeIntervalSince(lastBatchTime) > bufferTimeInterval {
+        if (packets.count >  bufferMaxSize && Date().timeIntervalSince(lastBatchTime) > bufferTimeInterval) 
+        || Date().timeIntervalSince(lastBatchTime) > bufferTimeInterval {
             return true
         } else {
             return false
