@@ -65,10 +65,6 @@ class Buffer {
         }
     }
 
-    func commit(cursorIndex: Int) {
-        packets.removeFirst(cursorIndex)
-    }
-
     func clearBuffer() {
         packets.removeAll()
     }

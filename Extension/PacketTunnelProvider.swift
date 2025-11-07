@@ -23,6 +23,7 @@ import PacketParser
 
 struct DataPacket {
     let rawData: Data               // Original packet data
+    let rawTimestamp: Date          // Date format timestamp
     let timestamp: String           // Time the packet was captured
     let protocolName: String        // TCP, UDP, ICMP, etc.
     let srcAddress: String          // Source IP
@@ -41,6 +42,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     private let model = MLHandler(model: /* Initialize with your CoreML model */)
     private let logger = PacketLogger()
     private let notificationHandler: NotificationHandler
+    private let scheduler = Scheduler()
 
     //settings
     private var notificationsEnabled: Bool = true
@@ -120,15 +122,17 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             let copy = packets // Copy packets for processing
 
             self.packetFlow.writePackets(packets, withProtocols: protocols) // Sends original packets back out
-
+            private var packets: [DataPacket] = []
             // Process packets (e.g., add to buffer)
-            let timestamp = self.getTime()
+            let date = Date()
+            let timestamp = self.getTime(date)
             for packet in copy {
                 let parsedPacket = try PacketParser.parse(data: packet)
                 
                 // Creates a packet data object for easy access
                 let dataPacket = DataPacket(
                     rawData: packet,
+                    rawtimestamp: date,
                     timestamp: timestamp,
                     protocolName: parsedPacket.protocolName,
                     srcAddress: parsedPacket.sourceAddress,
@@ -137,46 +141,17 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
                     dstPort: parsedPacket.destinationPort,
                     payload: parsedPacket.payload
                 )
-                self.buffer.addPacket(dataPacket)
+
+                scheduler.addPacket(dataPacket)
             }
 
-            //CORE LOGIC LOOP
-
-            if snifferModeEnabled {
-                //Store all observed packets in log (optional)
-            }
-
-            if !predictionsEnabled {
-                self.readLoop()
-                return
-            }
-
-            // Checks if the buffer is ready for prediction based on conditions
-            if !self.buffer.checkConditions() {
-                self.readLoop()
-                return
-            }
-
-            // Make prediction using the ML model
-            let bufferedPackets = self.buffer.getCurrentBuffer()
-            let prediction = try model.prediction(input: /* Create MLFeatureProvider from bufferedPackets */)
-
-            // Handle prediction result
-            if model.interpretPrediction(prediction) {
-                if self.notificationsEnabled {
-                    //Push notification
-                    self.notificationHandler.sendNotification(title: "", body: "")
-                }
-                //Persisent storage log
-                self.logger.logPackets(bufferedPackets)
-            }
+            Scheduler.coreLoop()
 
             self.readLoop() // Repeat the read loop
         }
     }
 
-    private func getTime() {
-        let date = Date()
+    private func getTime(date: Date) {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd HH:mm:ss.SSS"
         return formatter.string(from: date)
