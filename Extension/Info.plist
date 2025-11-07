@@ -29,7 +29,7 @@
 		<key>NSExtensionPointIdentifier</key>
 		<string>com.apple.networkextension.filter-data</string>
 		<key>NSExtensionPrincipalClass</key>
-		<string>$(PRODUCT_MODULE_NAME).Filter</string>
+		<string>$(PRODUCT_MODULE_NAME).FilterProvider</string>
 	</dict>
 </dict>
 </plist>

@@ -27,21 +27,15 @@ final class FilterProvider: NEFilterDataProvider {
     }
 
     private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "com.SALADS.App.Extension", category: "FilterProvider")
-
-    // Concurrency: concurrent queue with barrier writes for flowStates
     private var flowStates: [UUID: FlowState] = [:]
     private let stateQueue = DispatchQueue(label: "com.salads.filter.state", attributes: .concurrent)
 
-    // Configuration limits
     private let maxHeaderRecordsPerFlow = 200
     private let maxDumpRecords = 10
-    private let peekSize = 1024 // bytes to request if you choose to request peeks later
-
-    // MARK: - Lifecycle
+    private let peekSize = 1024
 
     override func startFilter(completionHandler: @escaping (Error?) -> Void) {
         logger.log("Filter starting")
-        // Conspicuous developer-level startup message to make logs easy to find during debugging
         logger.error("DEV START: FilterProvider started pid=\(ProcessInfo.processInfo.processIdentifier) bundle=\(Bundle.main.bundleIdentifier ?? "unknown")")
         completionHandler(nil)
     }
@@ -54,22 +48,20 @@ final class FilterProvider: NEFilterDataProvider {
         }
     }
 
-    // MARK: - Flow handling
-
     override func handleNewFlow(_ flow: NEFilterFlow) -> NEFilterNewFlowVerdict {
         logger.debug("handleNewFlow: \(flow.debugDescription)")
-        // For now, allow all flows and do not request data peeks.
-        // If you later need to inspect bytes, return a filterDataVerdict requesting peek sizes.
         return NEFilterNewFlowVerdict.allow()
     }
 
     override func handleInboundData(from flow: NEFilterFlow, readBytesStartOffset offset: Int, readBytes bytes: Data) -> NEFilterDataVerdict {
         recordHeader(from: flow, data: bytes, inbound: true)
+        logger.debug("handleInboundData for flow: \(bytes)")
         return NEFilterDataVerdict.allow()
     }
 
     override func handleOutboundData(from flow: NEFilterFlow, readBytesStartOffset offset: Int, readBytes bytes: Data) -> NEFilterDataVerdict {
         recordHeader(from: flow, data: bytes, inbound: false)
+        logger.debug("handleOutboundData for flow: \(bytes)")
         return NEFilterDataVerdict.allow()
     }
 
