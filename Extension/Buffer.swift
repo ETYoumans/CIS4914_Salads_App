@@ -30,17 +30,26 @@ struct DataPacket {
 class Buffer {
     private var packets: [DataPacket] = []
     private let bufferTimeInterval: TimeInterval
+    private let bufferDropInterval: TimeInterval
     private let bufferMaxSize: Int
     private var lastBatchTime: TimeInterval
 
-    init(bufferTimeInterval: TimeInterval, bufferMaxSize: Int) {
+    init(bufferTimeInterval: TimeInterval, bufferDropInterval: TimeInterval, bufferMaxSize: Int) {
         self.bufferTimeInterval = bufferTimeInterval
+        self.bufferDropInterval = bufferDropInterval
         self.bufferMaxSize = bufferMaxSize
         lastBatchTime = Date()
     }
 
     func addPacket(_ packet: DataPacket) {
         packets.append(packet)
+        for (p : packets){
+            if (p.rawTimestamp + bufferDropInterval < Date()) {
+                packets.removeFirst()
+            } else {
+                break
+            }
+        }
     }
 
     func getCurrentBuffer() -> [DataPacket] {
