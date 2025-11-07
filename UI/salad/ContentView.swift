@@ -9,7 +9,8 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var selectedTab = "Monitor"  // Initial tab
-    
+    @State private var events: [LocationEvent] = []
+    /*
     //need dynamic input
     let events: [LocationEvent] = [
         LocationEvent(
@@ -36,7 +37,29 @@ struct ContentView: View {
             location: "Gainesville, FL",
             severity: .low
         )
-    ]
+    ]*/
+    private func loadAndConvertLogs() {
+            let logs = loadLogs()
+            print("Loaded \(logs.count) logs")
+
+            self.events = logs.map { log in
+                let severity: Severity
+                switch log.severity {
+                case .high: severity = .high
+                case .medium: severity = .medium
+                case .low: severity = .low
+                }
+
+                return LocationEvent(
+                    title: log.title,
+                    subtitle: log.subtitle,
+                    time: log.time,
+                    deviceType: log.deviceType,
+                    location: log.location,
+                    severity: severity
+                )
+            }
+        }
     //
     var body: some View {
             ZStack {
@@ -53,7 +76,7 @@ struct ContentView: View {
                     Group {
                         if selectedTab == "Monitor" {
                             MonitoringCard()
-                            StatusBar()
+                            StatusBar(events: $events)
                             HStack {
                                 Text("Recent Activity")
                                 Spacer()
@@ -75,6 +98,12 @@ struct ContentView: View {
                 }
                 .padding()
             }
+            .onAppear{print("testing...")
+                    testLogging()
+                deleteOldLogsFile()
+                loadAndConvertLogs()
+            }
+        
         }
 
     /*
@@ -230,11 +259,20 @@ struct RecentActivity: View {
     }
 }
 struct StatusBar: View {
+    @Binding var events: [LocationEvent] // Use a Binding to the events array from ContentView
+    var highRiskCount: Int {
+            events.filter { $0.severity == .high }.count
+        }
+        
+    var totalCount: Int {
+        events.count
+    }
+
     var body: some View {
         HStack(spacing: 16) {
             // Left block: High Risk Today
             VStack {
-                Text("4")
+                Text("\(highRiskCount)")
                     .font(.title)
                     .foregroundColor(.red)
                     .bold()
@@ -253,7 +291,7 @@ struct StatusBar: View {
 
             // Right block: Total Access Today
             VStack {
-                Text("11")
+                Text("\(totalCount)")
                     .font(.title)
                     .foregroundColor(.blue)
                     .bold()
