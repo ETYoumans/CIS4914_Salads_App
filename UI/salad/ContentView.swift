@@ -40,25 +40,8 @@ struct ContentView: View {
     ]*/
     private func loadAndConvertLogs() {
             let logs = loadLogs()
-            print("Loaded \(logs.count) logs")
-
-            self.events = logs.map { log in
-                let severity: Severity
-                switch log.severity {
-                case .high: severity = .high
-                case .medium: severity = .medium
-                case .low: severity = .low
-                }
-
-                return LocationEvent(
-                    title: log.title,
-                    subtitle: log.subtitle,
-                    time: log.time,
-                    deviceType: log.deviceType,
-                    location: log.location,
-                    severity: severity
-                )
-            }
+            self.events = loadLogs()
+            print("Loaded \(events.count) logs")
         }
     //
     var body: some View {
@@ -82,10 +65,11 @@ struct ContentView: View {
                                 Spacer()
                             }
                             .padding(.top, 15)
-                            
-                            VStack(spacing: 12) {
-                                ForEach(events) { event in
-                                    LocationEventCard(event: event)
+                            ScrollView{
+                                VStack(spacing: 12) {
+                                    ForEach(events) { event in
+                                        LocationEventCard(event: event)
+                                    }
                                 }
                             }
                         } else if selectedTab == "Setting" {
@@ -100,41 +84,12 @@ struct ContentView: View {
             }
             .onAppear{print("testing...")
                     testLogging()
-                deleteOldLogsFile()
+//                deleteOldLogsFile()
                 loadAndConvertLogs()
             }
         
         }
 
-    /*
-    var body: some View {
-        ZStack{
-            Color(hex:"#D9D9D9")
-                .ignoresSafeArea()
-            
-            VStack {
-                TopBarView()
-                TabsView()
-                MonitoringCard()
-                StatusBar()
-                HStack{
-                    Text("Recent Activity")
-                    Spacer()
-                }.padding(.top,15)
-                
-                VStack(spacing: 12){
-                    ForEach(events){
-                        event in LocationEventCard(event: event)
-                    }
-                }
-                Spacer()
-            }
-            .padding()
-            
-        }
-
-    }
-    */
 }
 struct TopBarView: View {
     var body: some View {
@@ -156,31 +111,7 @@ struct TopBarView: View {
         }
     }
 }
-/*
-struct TabsView: View {
-    var body: some View {
-        HStack(spacing: 0) {
-            Text("Monitor")
-                .fontWeight(.bold)
-                .frame(maxWidth: .infinity)
-                .padding()
-                .background(Color.white)
-                .cornerRadius(20)
 
-            Text("Setting")
-                .fontWeight(.regular)
-                .frame(maxWidth: .infinity)
-                .padding()
-                .background(Color.gray.opacity(0.4))
-                .cornerRadius(20)
-        }
-        .frame(height: 40)
-        .background(Color.gray.opacity(0.3))
-        .clipShape(RoundedRectangle(cornerRadius: 20))
-        .padding()
-    }
-}
- */
 struct TabsView: View {
     @Binding var selectedTab: String  // Track current tab
     
@@ -335,8 +266,8 @@ struct placeholder: View {
 /////
 ///move to  different file?
 ///
-struct LocationEvent: Identifiable {
-    let id = UUID()
+struct LocationEvent: Identifiable, Codable {
+    let id: UUID
     let title: String
     let subtitle: String
     let time: String
@@ -345,7 +276,7 @@ struct LocationEvent: Identifiable {
     let severity: Severity
 }
 
-enum Severity {
+enum Severity: String, Codable {
     case high, medium, low
 
     var label: String {
