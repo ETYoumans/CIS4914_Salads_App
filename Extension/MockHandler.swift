@@ -28,7 +28,7 @@ class MockHandler {
         self.model = newModel
     }
 
-    func interpretPrediction(_ prediction: MLFeatureProvider) -> Bool {
+    func interpretPrediction() -> Bool {
         // Randomly return true (threat detected) about 20% of the time
         return Double.random(in: 0..<1) < 0.2
     }

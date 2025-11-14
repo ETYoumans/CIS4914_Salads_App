@@ -68,7 +68,7 @@ class Scheduler{
         if (prediction){
 
         // Handle prediction result
-            if model.interpretPrediction(prediction) {
+            if mockHandler.interpretPrediction() {
                 if self.notificationsEnabled {
                     //Push notification
                     // self.notificationHandler.sendNotification(title: "", body: "")
