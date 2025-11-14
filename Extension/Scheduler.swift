@@ -67,7 +67,7 @@ class Scheduler{
         let prediction = try mockHandler.prediction(input: bufferedPackets)
         if (prediction){
 
-        // Handle prediction result
+            // Handle prediction result
             if mockHandler.interpretPrediction() {
                 if self.notificationsEnabled {
                     //Push notification
