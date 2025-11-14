@@ -40,6 +40,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     private let timeInterval = 5.0
     private let buffer: Buffer
     private let model = MLHandler(model: /* Initialize with your CoreML model */)
+    private let modelMock = MockHandler()
     private let logger = PacketLogger()
     private let notificationHandler: NotificationHandler
     private let scheduler = Scheduler()
