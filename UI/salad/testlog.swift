@@ -7,27 +7,73 @@
 
 import Foundation
 
+//func testLogging() {
+//    let entry1 = LogEntry(
+//            title: "Find My",
+//            subtitle: "location accessed",
+//            time: "12:11 PM",
+//            deviceType: "Web",
+//            location: "Gainesville, FL",
+//            severity: .high
+//        )
+//
+//        let entry2 = LogEntry(
+//            title: "Find My",
+//            subtitle: "location accessed",
+//            time: "11:11 AM",
+//            deviceType: "Mobile",
+//            location: "Gainesville, FL",
+//            severity: .medium
+//        )
+//
+//        saveLogEntry(entry1)
+//        saveLogEntry(entry2)
+//    // Load logs back
+//    let logs = loadLogs()
+//
+//    // Print to verify
+//    print("Loaded \(logs.count) logs:")
+//    for log in logs {
+//        print("""
+//        ---
+//        Title: \(log.title)
+//        Subtitle: \(log.subtitle)
+//        Time: \(log.time)
+//        Device: \(log.deviceType)
+//        Location: \(log.location)
+//        Severity: \(log.severity.rawValue)
+//        """)
+//    }
+//
+//}
 func testLogging() {
-    let entry1 = LogEntry(
-            title: "Find My",
-            subtitle: "location accessed",
-            time: "12:11 PM",
-            deviceType: "Web",
-            location: "Gainesville, FL",
-            severity: .high
-        )
+    // Create dummy LocationEvent entries
+    let entry1 = LocationEvent(
+        id: UUID(),
+        title: "Find My",
+        subtitle: "location accessed",
+        time: "12:11 PM",
+        deviceType: "Web",
+        location: "Gainesville, FL",
+        severity: .high,
+        protocolName: "TCP"
+    )
 
-        let entry2 = LogEntry(
-            title: "Find My",
-            subtitle: "location accessed",
-            time: "11:11 AM",
-            deviceType: "Mobile",
-            location: "Gainesville, FL",
-            severity: .medium
-        )
+    let entry2 = LocationEvent(
+        id: UUID(),
+        title: "Find My",
+        subtitle: "location accessed",
+        time: "11:11 AM",
+        deviceType: "Mobile",
+        location: "Gainesville, FL",
+        severity: .medium,
+        protocolName: "UDP"
+    )
 
-        saveLogEntry(entry1)
-        saveLogEntry(entry2)
+    // Save entries
+    saveLogEntry(entry1)
+    saveLogEntry(entry2)
+
     // Load logs back
     let logs = loadLogs()
 
@@ -44,8 +90,8 @@ func testLogging() {
         Severity: \(log.severity.rawValue)
         """)
     }
-
 }
+
 func deleteOldLogsFile() {
     let fm = FileManager.default
     guard let container = fm.containerURL(forSecurityApplicationGroupIdentifier: "group.SALADS.LSDetector") else {

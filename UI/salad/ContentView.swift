@@ -10,25 +10,10 @@ import SwiftUI
 struct ContentView: View {
     @State private var selectedTab = "Monitor"  // Initial tab
     @State private var events: [LocationEvent] = []
+    @State private var ignoredEventIDs: Set<UUID> = []
     /*
     //need dynamic input
     let events: [LocationEvent] = [
-        LocationEvent(
-            title: "Find My",
-            subtitle: "location accessed",
-            time: "12:11 PM",
-            deviceType: "Web",
-            location: "Gainesville, FL",
-            severity: .high
-        ),
-        LocationEvent(
-            title: "Find My",
-            subtitle: "location accessed",
-            time: "12:11 PM",
-            deviceType: "Mobile",
-            location: "Gainesville, FL",
-            severity: .medium
-        ),
         LocationEvent(
             title: "Find My",
             subtitle: "location accessed",
@@ -38,27 +23,16 @@ struct ContentView: View {
             severity: .low
         )
     ]*/
+    private func toggleIgnore(for id: UUID) {
+        if ignoredEventIDs.contains(id) {
+            ignoredEventIDs.remove(id)
+        } else {
+            ignoredEventIDs.insert(id)
+        }
+    }
     private func loadAndConvertLogs() {
-            let logs = loadLogs()
-            print("Loaded \(logs.count) logs")
-
-            self.events = logs.map { log in
-                let severity: Severity
-                switch log.severity {
-                case .high: severity = .high
-                case .medium: severity = .medium
-                case .low: severity = .low
-                }
-
-                return LocationEvent(
-                    title: log.title,
-                    subtitle: log.subtitle,
-                    time: log.time,
-                    deviceType: log.deviceType,
-                    location: log.location,
-                    severity: severity
-                )
-            }
+            self.events = loadLogs()
+            print("Loaded \(events.count) logs")
         }
     //
     var body: some View {
@@ -82,10 +56,20 @@ struct ContentView: View {
                                 Spacer()
                             }
                             .padding(.top, 15)
-                            
-                            VStack(spacing: 12) {
-                                ForEach(events) { event in
-                                    LocationEventCard(event: event)
+                            ScrollView{
+                                VStack(spacing: 12) {
+//                                    ForEach(events) { event in
+//                                        LocationEventCard(event: event)
+//                                    }
+                                    ForEach(events) { event in
+                                        LocationEventCard(
+                                            event: event,
+                                            isIgnored: ignoredEventIDs.contains(event.id)
+                                        ) {
+                                            toggleIgnore(for: event.id)
+                                        }
+                                    }
+
                                 }
                             }
                         } else if selectedTab == "Setting" {
@@ -100,41 +84,12 @@ struct ContentView: View {
             }
             .onAppear{print("testing...")
                     testLogging()
-                deleteOldLogsFile()
+//                deleteOldLogsFile()
                 loadAndConvertLogs()
             }
         
         }
 
-    /*
-    var body: some View {
-        ZStack{
-            Color(hex:"#D9D9D9")
-                .ignoresSafeArea()
-            
-            VStack {
-                TopBarView()
-                TabsView()
-                MonitoringCard()
-                StatusBar()
-                HStack{
-                    Text("Recent Activity")
-                    Spacer()
-                }.padding(.top,15)
-                
-                VStack(spacing: 12){
-                    ForEach(events){
-                        event in LocationEventCard(event: event)
-                    }
-                }
-                Spacer()
-            }
-            .padding()
-            
-        }
-
-    }
-    */
 }
 struct TopBarView: View {
     var body: some View {
@@ -156,31 +111,7 @@ struct TopBarView: View {
         }
     }
 }
-/*
-struct TabsView: View {
-    var body: some View {
-        HStack(spacing: 0) {
-            Text("Monitor")
-                .fontWeight(.bold)
-                .frame(maxWidth: .infinity)
-                .padding()
-                .background(Color.white)
-                .cornerRadius(20)
 
-            Text("Setting")
-                .fontWeight(.regular)
-                .frame(maxWidth: .infinity)
-                .padding()
-                .background(Color.gray.opacity(0.4))
-                .cornerRadius(20)
-        }
-        .frame(height: 40)
-        .background(Color.gray.opacity(0.3))
-        .clipShape(RoundedRectangle(cornerRadius: 20))
-        .padding()
-    }
-}
- */
 struct TabsView: View {
     @Binding var selectedTab: String  // Track current tab
     
@@ -335,17 +266,18 @@ struct placeholder: View {
 /////
 ///move to  different file?
 ///
-struct LocationEvent: Identifiable {
-    let id = UUID()
+struct LocationEvent: Identifiable, Codable {
+    let id: UUID
     let title: String
     let subtitle: String
     let time: String
     let deviceType: String
     let location: String
     let severity: Severity
+    let protocolName: String?
 }
 
-enum Severity {
+enum Severity: String, Codable {
     case high, medium, low
 
     var label: String {
@@ -364,61 +296,159 @@ enum Severity {
         }
     }
 }
-
 struct LocationEventCard: View {
     let event: LocationEvent
     
+    let isIgnored: Bool
+    let onToggleIgnore: () -> Void
+    
+    @State private var isExpanded = false
+
     var body: some View {
-        HStack {
-            // LEFT SIDE
-            VStack(alignment: .leading, spacing: 8) {
-                HStack(spacing: 6) {
-                    Image(systemName: "exclamationmark.triangle.fill")
-                        .foregroundColor(event.severity.color)
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(event.title)
-                            .bold()
-                        Text(event.subtitle)
-                            .font(.subheadline)
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack(spacing: 6) {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundColor(event.severity.color)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(event.title)
+                                .bold()
+                            Text(event.subtitle)
+                                .font(.subheadline)
+                                .foregroundColor(.gray)
+                        }
+                    }
+
+                    HStack(spacing: 16) {
+                        Label(event.time, systemImage: "clock")
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                        Label(event.deviceType, systemImage: "globe")
+                            .font(.caption)
                             .foregroundColor(.gray)
                     }
                 }
-                
-                HStack(spacing: 16) {
-                    Label(event.time, systemImage: "clock")
+
+                Spacer()
+
+                VStack(alignment: .trailing, spacing: 6) {
+                    Text(event.severity.label)
                         .font(.caption)
-                        .foregroundColor(.gray)
-                    
-                    Label(event.deviceType, systemImage: "globe")
-                        .font(.caption)
-                        .foregroundColor(.gray)
-                }
-            }
-            
-            Spacer()
-            // RIGHT SIDE
-                        VStack(alignment: .trailing, spacing: 6) {
-                            Text(event.severity.label)
-                                .font(.caption)
-                                .bold()
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 4)
-                                .background(Color(hex:"#D9D9D9"))
-                                .cornerRadius(8)
-                            
-                            HStack {
-                                Image(systemName: "location")
-                                    .font(.caption)
-                                    .foregroundColor(.gray)
-                                Text(event.location)
-                                    .font(.caption)
-                                    .foregroundColor(.gray)
-                            }
-                        }
+                        .bold()
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Color(hex:"#D9D9D9"))
+                        .cornerRadius(8)
+
+                    HStack {
+                        Image(systemName: "location")
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                        Text(event.location)
+                            .font(.caption)
+                            .foregroundColor(.gray)
                     }
-                    .padding()
-                    .background(.white)
-                    .cornerRadius(12)
-                    .padding(.horizontal)
                 }
             }
+
+            if isExpanded {
+                Divider()
+                VStack(alignment: .leading, spacing: 4) {
+                    if let proto = event.protocolName {
+                        Text("Protocol: \(proto)")
+                            .font(.caption)
+                            .foregroundColor(.blue)
+                    }
+                    Button(action: onToggleIgnore) {
+                                            Text(isIgnored ? "Unignore" : "Ignore")
+                                                .font(.caption)
+                                                .foregroundColor(isIgnored ? .red : .blue)
+                                                .padding(.vertical, 4)
+                                                .padding(.horizontal, 8)
+                                                .background(Color.gray.opacity(0.2))
+                                                .cornerRadius(6)
+                                        }
+//                    Button(action: onToggleIgnore) {
+//                                            Text(isIgnored ? "Unignore" : "Ignore")
+//                                                .font(.caption)
+//                                                .foregroundColor(isIgnored ? .red : .blue)
+//                                                .padding(.vertical, 4)
+//                                                .padding(.horizontal, 8)
+//                                                .background(Color.gray.opacity(0.2))
+//                                                .cornerRadius(6)
+//                                        }
+                    // Future expandable info/buttons can go here
+                }
+                .transition(.opacity.combined(with: .slide))
+            }
+        }
+        .padding()
+        .background(.white)
+        .cornerRadius(12)
+        .padding(.horizontal)
+        .onTapGesture {
+            withAnimation(.spring()) {
+                isExpanded.toggle()
+            }
+        }
+    }
+}
+
+//struct LocationEventCard: View {
+//    let event: LocationEvent
+//    
+//    var body: some View {
+//        HStack {
+//            // LEFT SIDE
+//            VStack(alignment: .leading, spacing: 8) {
+//                HStack(spacing: 6) {
+//                    Image(systemName: "exclamationmark.triangle.fill")
+//                        .foregroundColor(event.severity.color)
+//                    VStack(alignment: .leading, spacing: 2) {
+//                        Text(event.title)
+//                            .bold()
+//                        Text(event.subtitle)
+//                            .font(.subheadline)
+//                            .foregroundColor(.gray)
+//                    }
+//                }
+//                
+//                HStack(spacing: 16) {
+//                    Label(event.time, systemImage: "clock")
+//                        .font(.caption)
+//                        .foregroundColor(.gray)
+//                    
+//                    Label(event.deviceType, systemImage: "globe")
+//                        .font(.caption)
+//                        .foregroundColor(.gray)
+//                }
+//            }
+//            
+//            Spacer()
+//            // RIGHT SIDE
+//                        VStack(alignment: .trailing, spacing: 6) {
+//                            Text(event.severity.label)
+//                                .font(.caption)
+//                                .bold()
+//                                .padding(.horizontal, 8)
+//                                .padding(.vertical, 4)
+//                                .background(Color(hex:"#D9D9D9"))
+//                                .cornerRadius(8)
+//                            
+//                            HStack {
+//                                Image(systemName: "location")
+//                                    .font(.caption)
+//                                    .foregroundColor(.gray)
+//                                Text(event.location)
+//                                    .font(.caption)
+//                                    .foregroundColor(.gray)
+//                            }
+//                        }
+//                    }
+//                    .padding()
+//                    .background(.white)
+//                    .cornerRadius(12)
+//                    .padding(.horizontal)
+//                }
+//            }

@@ -7,40 +7,40 @@
 import Foundation
 import SwiftUI
 
-enum SeverityLevel: String, Codable {
-    case high, medium, low
-}
+//enum SeverityLevel: String, Codable {
+//    case high, medium, low
+//}
+//
+//struct LogEntry: Identifiable, Codable {
+//    let id: UUID
+//    let title: String
+//    let subtitle: String
+//    let time: String      // keep string for display, or use Date if preferred
+//    let deviceType: String
+//    let location: String
+//    let severity: SeverityLevel
+//
+//    init(
+//        id: UUID = UUID(),
+//        title: String,
+//        subtitle: String,
+//        time: String,
+//        deviceType: String,
+//        location: String,
+//        severity: SeverityLevel
+//    ) {
+//        self.id = id
+//        self.title = title
+//        self.subtitle = subtitle
+//        self.time = time
+//        self.deviceType = deviceType
+//        self.location = location
+//        self.severity = severity
+//    }
+//}
 
-struct LogEntry: Identifiable, Codable {
-    let id: UUID
-    let title: String
-    let subtitle: String
-    let time: String      // keep string for display, or use Date if preferred
-    let deviceType: String
-    let location: String
-    let severity: SeverityLevel
 
-    init(
-        id: UUID = UUID(),
-        title: String,
-        subtitle: String,
-        time: String,
-        deviceType: String,
-        location: String,
-        severity: SeverityLevel
-    ) {
-        self.id = id
-        self.title = title
-        self.subtitle = subtitle
-        self.time = time
-        self.deviceType = deviceType
-        self.location = location
-        self.severity = severity
-    }
-}
-
-
-func saveLogEntry(_ entry: LogEntry) {
+func saveLogEntry(_ entry: LocationEvent) {
     let fm = FileManager.default
     guard let container = fm.containerURL(forSecurityApplicationGroupIdentifier: "group.SALADS.LSDetector") else { return }
     print("container: ")
@@ -69,13 +69,13 @@ func saveLogEntry(_ entry: LogEntry) {
 
 }
 
-func loadLogs() -> [LogEntry] {
+func loadLogs() -> [LocationEvent] {
     let fm = FileManager.default
     guard let container = fm.containerURL(forSecurityApplicationGroupIdentifier: "group.SALADS.LSDetector") else { return [] }
     let fileURL = container.appendingPathComponent("logs.json")
     //let fileURL = FileManager.default.temporaryDirectory.appendingPathComponent("logs.json")
     if let data = try? Data(contentsOf: fileURL),
-       let logs = try? JSONDecoder().decode([LogEntry].self, from: data) {
+       let logs = try? JSONDecoder().decode([LocationEvent].self, from: data) {
         return logs
     }
     return []
