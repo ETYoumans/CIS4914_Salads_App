@@ -50,31 +50,23 @@ func testLogging() {
     // Create dummy LocationEvent entries
     let entry1 = LocationEvent(
         id: UUID(),
-        title: "Find My",
-        subtitle: "location accessed",
         time: "12:11 PM",
-        deviceType: "Web",
-        location: "Gainesville, FL",
-        severity: .high,
-        sourceApVersion: "2.0",
+        sourceApp: "Find my",
+        sourceAppVersion: "2.0",
         direction: "inbound",
         url: "google.com",
-        protocolName: "TCP",
+        proto: "TCP",
         
     )
 
     let entry2 = LocationEvent(
         id: UUID(),
-        title: "Find My",
-        subtitle: "location accessed",
         time: "11:11 AM",
-        deviceType: "Mobile",
-        location: "Gainesville, FL",
-        severity: .medium,
-        sourceApVersion: "3.0",
+        sourceApp: "Amazon",
+        sourceAppVersion: "3.0",
         direction: "outbound",
         url: "Amazon.com",
-        protocolName: "UDP",
+        proto: "UDP",
     )
 
     // Save entries
@@ -85,6 +77,7 @@ func testLogging() {
     let logs = loadLogs()
 
     // Print to verify
+    /*
     print("Loaded \(logs.count) logs:")
     for log in logs {
         print("""
@@ -96,7 +89,7 @@ func testLogging() {
         Location: \(log.location)
         Severity: \(log.severity.rawValue)
         """)
-    }
+    }*/
 }
 
 func deleteOldLogsFile() {

@@ -191,10 +191,12 @@ struct RecentActivity: View {
 }
 struct StatusBar: View {
     @Binding var events: [LocationEvent] // Use a Binding to the events array from ContentView
+   /*
     var highRiskCount: Int {
             events.filter { $0.severity == .high }.count
         }
         
+    */
     var totalCount: Int {
         events.count
     }
@@ -203,10 +205,10 @@ struct StatusBar: View {
         HStack(spacing: 16) {
             // Left block: High Risk Today
             VStack {
-                Text("\(highRiskCount)")
+/*                Text("\(highRiskCount)")
                     .font(.title)
                     .foregroundColor(.red)
-                    .bold()
+                    .bold()*/
                 Text("High Risk Today")
                     .font(.system(size: 13,weight:.medium))
                     .foregroundColor(.brown)
@@ -268,16 +270,12 @@ struct placeholder: View {
 ///
 struct LocationEvent: Identifiable, Codable {
     let id: UUID
-    let title: String
-    let subtitle: String
     let time: String
-    let deviceType: String
-    let location: String
-    let severity: Severity
-    let sourceApVersion: String
+    let sourceApp: String
+    let sourceAppVersion: String
     let direction: String
     let url: String?
-    let protocolName: String?
+    let proto: String?
     
 }
 
@@ -313,14 +311,16 @@ struct LocationEventCard: View {
             HStack {
                 VStack(alignment: .leading, spacing: 8) {
                     HStack(spacing: 6) {
-                        Image(systemName: "exclamationmark.triangle.fill")
-                            .foregroundColor(event.severity.color)
+                        /*Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundColor(event.severity.color)*/
                         VStack(alignment: .leading, spacing: 2) {
-                            Text(event.title)
+                            Text(event.sourceApp)
                                 .bold()
+                            /*
                             Text(event.subtitle)
                                 .font(.subheadline)
                                 .foregroundColor(.gray)
+                             */
                         }
                     }
 
@@ -328,7 +328,7 @@ struct LocationEventCard: View {
                         Label(event.time, systemImage: "clock")
                             .font(.caption)
                             .foregroundColor(.gray)
-                        Label(event.deviceType, systemImage: "globe")
+                        Label(event.direction, systemImage: "globe")
                             .font(.caption)
                             .foregroundColor(.gray)
                     }
@@ -336,15 +336,15 @@ struct LocationEventCard: View {
 
                 Spacer()
 
-                VStack(alignment: .trailing, spacing: 6) {
-                    Text(event.severity.label)
+  /*              VStack(alignment: .trailing, spacing: 6) {
+ /*                   Text(event.severity.label)
                         .font(.caption)
                         .bold()
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
                         .background(Color(hex:"#D9D9D9"))
                         .cornerRadius(8)
-
+*/
                     HStack {
                         Image(systemName: "location")
                             .font(.caption)
@@ -353,13 +353,13 @@ struct LocationEventCard: View {
                             .font(.caption)
                             .foregroundColor(.gray)
                     }
-                }
+                }*/
             }
 
             if isExpanded {
                 Divider()
                 VStack(alignment: .leading, spacing: 4) {
-                    if let proto = event.protocolName {
+                    if let proto = event.proto {
                         Text("Protocol: \(proto)")
                             .font(.caption)
                             .foregroundColor(.blue)
@@ -369,10 +369,7 @@ struct LocationEventCard: View {
                             .font(.caption)
                             .foregroundColor(.blue)
                     }
-                    Text("SourceApVersion: \(event.sourceApVersion)")
-                        .font(.caption)
-                        .foregroundColor(.blue)
-                    Text("Directino: \(event.direction)")
+                    Text("SourceApVersion: \(event.sourceAppVersion)")
                         .font(.caption)
                         .foregroundColor(.blue)
                     Button(action: onToggleIgnore) {
