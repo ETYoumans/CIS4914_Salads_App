@@ -56,7 +56,11 @@ func testLogging() {
         deviceType: "Web",
         location: "Gainesville, FL",
         severity: .high,
-        protocolName: "TCP"
+        sourceApVersion: "2.0",
+        direction: "inbound",
+        url: "google.com",
+        protocolName: "TCP",
+        
     )
 
     let entry2 = LocationEvent(
@@ -67,7 +71,10 @@ func testLogging() {
         deviceType: "Mobile",
         location: "Gainesville, FL",
         severity: .medium,
-        protocolName: "UDP"
+        sourceApVersion: "3.0",
+        direction: "outbound",
+        url: "Amazon.com",
+        protocolName: "UDP",
     )
 
     // Save entries

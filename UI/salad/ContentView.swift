@@ -274,7 +274,11 @@ struct LocationEvent: Identifiable, Codable {
     let deviceType: String
     let location: String
     let severity: Severity
+    let sourceApVersion: String
+    let direction: String
+    let url: String?
     let protocolName: String?
+    
 }
 
 enum Severity: String, Codable {
@@ -360,6 +364,17 @@ struct LocationEventCard: View {
                             .font(.caption)
                             .foregroundColor(.blue)
                     }
+                    if let myurl = event.url {
+                        Text("URL: \(myurl)")
+                            .font(.caption)
+                            .foregroundColor(.blue)
+                    }
+                    Text("SourceApVersion: \(event.sourceApVersion)")
+                        .font(.caption)
+                        .foregroundColor(.blue)
+                    Text("Directino: \(event.direction)")
+                        .font(.caption)
+                        .foregroundColor(.blue)
                     Button(action: onToggleIgnore) {
                                             Text(isIgnored ? "Unignore" : "Ignore")
                                                 .font(.caption)
@@ -369,16 +384,6 @@ struct LocationEventCard: View {
                                                 .background(Color.gray.opacity(0.2))
                                                 .cornerRadius(6)
                                         }
-//                    Button(action: onToggleIgnore) {
-//                                            Text(isIgnored ? "Unignore" : "Ignore")
-//                                                .font(.caption)
-//                                                .foregroundColor(isIgnored ? .red : .blue)
-//                                                .padding(.vertical, 4)
-//                                                .padding(.horizontal, 8)
-//                                                .background(Color.gray.opacity(0.2))
-//                                                .cornerRadius(6)
-//                                        }
-                    // Future expandable info/buttons can go here
                 }
                 .transition(.opacity.combined(with: .slide))
             }
