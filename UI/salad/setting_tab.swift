@@ -33,15 +33,25 @@ struct SettingsView: View {
                     .disabled(!notificationsEnabled)
 
                 VStack(alignment: .leading) {
-                    Text("Sensitivity Level")
-                    Slider(value: Binding(
-                        get: { Double(sensitivityLevel) },
-                        set: { sensitivityLevel = Int($0) }
-                    ), in: 1...10, step: 1)
                     HStack {
-                        Text("Low")
+                            Text("Sensitivity Level")
+                            Spacer()
+                            Text("\(sensitivityLevel)")
+                                .fontWeight(.semibold)
+                        }
+                    Slider(
+                        value: Binding(
+                            get: { Double(sensitivityLevel) },
+                            set: { sensitivityLevel = Int($0) }
+                        ),
+                        in: 0...300,
+                        step: 1
+                    )
+
+                    HStack {
+                        Text("0")
                         Spacer()
-                        Text("High")
+                        Text("300")
                     }
                     .font(.caption)
                     .foregroundColor(.gray)

@@ -58,7 +58,7 @@ func testLogging() {
         proto: "TCP",
         
     )
-
+/*
     let entry2 = LocationEvent(
         id: UUID(),
         time: "11:11 AM",
@@ -67,11 +67,11 @@ func testLogging() {
         direction: "outbound",
         url: "Amazon.com",
         proto: "UDP",
-    )
+    )*/
 
     // Save entries
     saveLogEntry(entry1)
-    saveLogEntry(entry2)
+    //saveLogEntry(entry2)
 
     // Load logs back
     let logs = loadLogs()

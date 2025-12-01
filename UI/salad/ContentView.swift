@@ -1,136 +1,113 @@
-//
-//  ContentView.swift
-//  salad
-//
-//  Created by Liu, Yao Wen on 10/1/25.
-//
-
 import SwiftUI
 
+// MARK: - ContentView
 struct ContentView: View {
-    @State private var selectedTab = "Monitor"  // Initial tab
+    @State private var selectedTab = "Monitor"
     @State private var events: [LocationEvent] = []
-    @State private var ignoredEventIDs: Set<UUID> = []
-    /*
-    //need dynamic input
-    let events: [LocationEvent] = [
-        LocationEvent(
-            title: "Find My",
-            subtitle: "location accessed",
-            time: "12:11 PM",
-            deviceType: "Mobile",
-            location: "Gainesville, FL",
-            severity: .low
-        )
-    ]*/
-    private func toggleIgnore(for id: UUID) {
-        if ignoredEventIDs.contains(id) {
-            ignoredEventIDs.remove(id)
+    @State private var ignoredApps: Set<String> = []
+
+    private func toggleIgnore(for app: String) {
+        if ignoredApps.contains(app) {
+            ignoredApps.remove(app)
         } else {
-            ignoredEventIDs.insert(id)
+            ignoredApps.insert(app)
         }
     }
-    private func loadAndConvertLogs() {
-            self.events = loadLogs()
-            print("Loaded \(events.count) logs")
-        }
-    //
-    var body: some View {
-            ZStack {
-                Color(hex:"#D9D9D9")
-                    .ignoresSafeArea()
-                
-                VStack {
-                    TopBarView()
-                    
-                    // Tabs with binding to selectedTab
-                    TabsView(selectedTab: $selectedTab)
-                    
-                    // Switch main content based on tab
-                    Group {
-                        if selectedTab == "Monitor" {
-                            MonitoringCard()
-                            StatusBar(events: $events)
-                            HStack {
-                                Text("Recent Activity")
-                                Spacer()
-                            }
-                            .padding(.top, 15)
-                            ScrollView{
-                                VStack(spacing: 12) {
-//                                    ForEach(events) { event in
-//                                        LocationEventCard(event: event)
-//                                    }
-                                    ForEach(events) { event in
-                                        LocationEventCard(
-                                            event: event,
-                                            isIgnored: ignoredEventIDs.contains(event.id)
-                                        ) {
-                                            toggleIgnore(for: event.id)
-                                        }
-                                    }
 
+    private func loadAndConvertLogs() {
+        self.events = loadLogs()
+        print("Loaded \(events.count) logs")
+    }
+
+    var body: some View {
+        ZStack {
+            Color(hex: "#D9D9D9").ignoresSafeArea()
+            
+            VStack {
+                TopBarView()
+                
+                TabsView(selectedTab: $selectedTab)
+                
+                Group {
+                    if selectedTab == "Monitor" {
+                        MonitoringCard()
+                        StatusBar(events: $events)
+                        
+                        HStack {
+                            Text("Recent Activity")
+                            Spacer()
+                        }
+                        .padding(.top, 15)
+                        
+                        ScrollView {
+                            VStack(spacing: 12) {
+                                ForEach(events) { event in
+                                    LocationEventCard(
+                                        event: event,
+                                        isIgnored: ignoredApps.contains(event.sourceApp)
+                                    ) {
+                                        toggleIgnore(for: event.sourceApp)
+                                    }
                                 }
                             }
-                        } else if selectedTab == "Setting" {
-                            // Replace this with your Settings view content
-                            SettingsView()
                         }
+                    } else if selectedTab == "Group" {
+                        GroupedAppListView(
+                            events: events,
+                            ignoredApps: $ignoredApps,
+                            onToggleIgnore: toggleIgnore
+                        )
+                    } else if selectedTab == "Setting" {
+                        SettingsView()
                     }
-                    
-                    Spacer()
                 }
-                .padding()
+                
+                Spacer()
             }
-            .onAppear{print("testing...")
-                    testLogging()
-//                deleteOldLogsFile()
-                loadAndConvertLogs()
-            }
-        
+            .padding()
         }
-
+        .onAppear {
+            print("testing...")
+            testLogging()
+            loadAndConvertLogs()
+        }
+    }
 }
+
+// MARK: - Top Bar
 struct TopBarView: View {
     var body: some View {
-        HStack{
+        HStack {
             Text("Salads")
                 .font(.system(size: 30))
                 .bold()
                 .foregroundColor(Color(hex: "0429FD"))
             Spacer()
-            //Can be use to distinguish between unread message
-            //Image(systemName: "bell.badge")
             Image(systemName: "bell.fill")
                 .font(.system(size: 28))
-/*
-            Image("bell_icon")
-                .resizable()
-                .frame(width:50, height:50)
-  */
         }
     }
 }
 
+// MARK: - Tabs
 struct TabsView: View {
-    @Binding var selectedTab: String  // Track current tab
+    @Binding var selectedTab: String
     
     var body: some View {
         HStack(spacing: 0) {
             tabButton(title: "Monitor")
+            tabButton(title: "Group")
             tabButton(title: "Setting")
         }
         .frame(height: 30)
         .background(Color.gray.opacity(0.3))
         .clipShape(RoundedRectangle(cornerRadius: 20))
-        .padding(.top,20)
-        .padding(.bottom,16)
+        .padding(.top, 20)
+        .padding(.bottom, 16)
     }
     
     private func tabButton(title: String) -> some View {
-        Button(action: {
-            selectedTab = title
-        }) {
+        Button(action: { selectedTab = title }) {
             Text(title)
                 .fontWeight(selectedTab == title ? .bold : .regular)
                 .frame(maxWidth: .infinity)
@@ -142,11 +119,11 @@ struct TabsView: View {
     }
 }
 
+// MARK: - Monitoring Card
 struct MonitoringCard: View {
-    @State private var isMonitoringOn: Bool = true
+    @State private var isMonitoringOn: Bool = false
     var body: some View {
         HStack {
-            // LEFT SIDE (stack of two rows)
             VStack(alignment: .leading, spacing: 8) {
                 HStack(spacing: 6) {
                     Image(systemName: "shield.fill")
@@ -154,7 +131,6 @@ struct MonitoringCard: View {
                     Text("Location monitoring Active")
                         .font(.subheadline)
                 }
-                
                 HStack(spacing: 6) {
                     Image(systemName: "location.fill")
                         .foregroundColor(.blue)
@@ -165,52 +141,25 @@ struct MonitoringCard: View {
             
             Spacer()
             
-            // RIGHT SIDE (toggle switch)
             Toggle("", isOn: $isMonitoringOn)
                 .labelsHidden()
-                .toggleStyle(SwitchToggleStyle(tint: .black)) // customize tint
+                .toggleStyle(SwitchToggleStyle(tint: .black))
         }
         .padding()
     }
 }
-struct RecentActivity: View {
-    var body: some View {
-        HStack{
-            Text("Moitor")
-                .font(.system(size: 30))
-                .bold()
-                .foregroundColor(.blue)
-            Spacer()
-            Text("Setting")
-                .font(.system(size: 30))
-                .bold()
-                .foregroundColor(.blue)
-            
-        }
-    }
-}
+
+// MARK: - Status Bar
 struct StatusBar: View {
-    @Binding var events: [LocationEvent] // Use a Binding to the events array from ContentView
-   /*
-    var highRiskCount: Int {
-            events.filter { $0.severity == .high }.count
-        }
-        
-    */
-    var totalCount: Int {
-        events.count
-    }
+    @Binding var events: [LocationEvent]
+    
+    var totalCount: Int { events.count }
 
     var body: some View {
         HStack(spacing: 16) {
-            // Left block: High Risk Today
             VStack {
-/*                Text("\(highRiskCount)")
-                    .font(.title)
-                    .foregroundColor(.red)
-                    .bold()*/
                 Text("High Risk Today")
-                    .font(.system(size: 13,weight:.medium))
+                    .font(.system(size: 13, weight: .medium))
                     .foregroundColor(.brown)
             }
             .frame(maxWidth: .infinity)
@@ -219,17 +168,16 @@ struct StatusBar: View {
             .cornerRadius(12)
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
-                    .stroke(Color.blue, lineWidth: 2) // blue border to highlight
+                    .stroke(Color.blue, lineWidth: 2)
             )
-
-            // Right block: Total Access Today
+            
             VStack {
                 Text("\(totalCount)")
                     .font(.title)
                     .foregroundColor(.blue)
                     .bold()
                 Text("Total Access Today")
-                    .font(.system(size: 13,weight:.medium))
+                    .font(.system(size: 13, weight: .medium))
                     .foregroundColor(.brown)
             }
             .frame(maxWidth: .infinity)
@@ -242,32 +190,76 @@ struct StatusBar: View {
         .cornerRadius(10)
     }
 }
-struct placeholder: View {
+
+// MARK: - Grouped App List
+struct GroupedAppListView: View {
+    let events: [LocationEvent]
+    @Binding var ignoredApps: Set<String>
+    let onToggleIgnore: (String) -> Void
+    
+    var grouped: [GroupedLocationEvents] {
+        let groupedDict = Dictionary(grouping: events, by: { $0.sourceApp })
+        return groupedDict
+            .map { GroupedLocationEvents(sourceApp: $0.key, events: $0.value) }
+            .sorted { $0.sourceApp < $1.sourceApp } // stable order
+    }
+
     var body: some View {
-        HStack{
-            Text("nope")
-                .font(.system(size: 30))
-                .bold()
-                .foregroundColor(.blue)
-            Spacer()
-            Text("nope")
-                .font(.system(size: 30))
-                .bold()
-                .foregroundColor(.blue)
-            
+        ScrollView {
+            VStack(spacing: 12) {
+                ForEach(grouped) { group in
+                    GroupedAppCard(
+                        group: group,
+                        isIgnored: ignoredApps.contains(group.sourceApp)
+                    ) {
+                        onToggleIgnore(group.sourceApp)
+                    }
+                }
+            }
         }
     }
 }
 
-#Preview {
-    ContentView()
+// MARK: - Grouped App Card
+struct GroupedAppCard: View {
+    let group: GroupedLocationEvents
+    let isIgnored: Bool
+    let onToggleIgnore: () -> Void
+    
+    @State private var isExpanded = false
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text(group.sourceApp)
+                    .bold()
+                Spacer()
+                Text("\(group.count) events")
+                    .foregroundColor(.blue)
+            }
+            
+            if isExpanded {
+                Divider()
+                Button(action: onToggleIgnore) {
+                    Text(isIgnored ? "Unignore App" : "Ignore App")
+                        .font(.caption)
+                        .foregroundColor(isIgnored ? .red : .blue)
+                        .padding(.vertical, 4)
+                        .padding(.horizontal, 8)
+                        .background(Color.gray.opacity(0.2))
+                        .cornerRadius(6)
+                }
+            }
+        }
+        .padding()
+        .background(Color.white)
+        .cornerRadius(12)
+        .padding(.horizontal)
+        .onTapGesture { withAnimation { isExpanded.toggle() } }
+    }
 }
 
-
-
-/////
-///move to  different file?
-///
+// MARK: - Location Event
 struct LocationEvent: Identifiable, Codable {
     let id: UUID
     let time: String
@@ -276,34 +268,22 @@ struct LocationEvent: Identifiable, Codable {
     let direction: String
     let url: String?
     let proto: String?
+}
+
+// MARK: - Grouped Location Events
+struct GroupedLocationEvents: Identifiable {
+    let sourceApp: String
+    let events: [LocationEvent]
     
+    var id: String { sourceApp } // stable ID
+    var count: Int { events.count }
 }
 
-enum Severity: String, Codable {
-    case high, medium, low
-
-    var label: String {
-        switch self {
-        case .high: return "High"
-        case .medium: return "Medium"
-        case .low: return "Low"
-        }
-    }
-
-    var color: Color {
-        switch self {
-        case .high: return .red
-        case .medium: return .yellow
-        case .low: return .blue
-        }
-    }
-}
+// MARK: - Location Event Card
 struct LocationEventCard: View {
     let event: LocationEvent
-    
     let isIgnored: Bool
     let onToggleIgnore: () -> Void
-    
     @State private var isExpanded = false
 
     var body: some View {
@@ -311,19 +291,9 @@ struct LocationEventCard: View {
             HStack {
                 VStack(alignment: .leading, spacing: 8) {
                     HStack(spacing: 6) {
-                        /*Image(systemName: "exclamationmark.triangle.fill")
-                            .foregroundColor(event.severity.color)*/
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(event.sourceApp)
-                                .bold()
-                            /*
-                            Text(event.subtitle)
-                                .font(.subheadline)
-                                .foregroundColor(.gray)
-                             */
-                        }
+                        Text(event.sourceApp)
+                            .bold()
                     }
-
                     HStack(spacing: 16) {
                         Label(event.time, systemImage: "clock")
                             .font(.caption)
@@ -333,27 +303,7 @@ struct LocationEventCard: View {
                             .foregroundColor(.gray)
                     }
                 }
-
                 Spacer()
-
-  /*              VStack(alignment: .trailing, spacing: 6) {
- /*                   Text(event.severity.label)
-                        .font(.caption)
-                        .bold()
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(Color(hex:"#D9D9D9"))
-                        .cornerRadius(8)
-*/
-                    HStack {
-                        Image(systemName: "location")
-                            .font(.caption)
-                            .foregroundColor(.gray)
-                        Text(event.location)
-                            .font(.caption)
-                            .foregroundColor(.gray)
-                    }
-                }*/
             }
 
             if isExpanded {
@@ -364,23 +314,14 @@ struct LocationEventCard: View {
                             .font(.caption)
                             .foregroundColor(.blue)
                     }
-                    if let myurl = event.url {
-                        Text("URL: \(myurl)")
+                    if let url = event.url {
+                        Text("URL: \(url)")
                             .font(.caption)
                             .foregroundColor(.blue)
                     }
-                    Text("SourceApVersion: \(event.sourceAppVersion)")
+                    Text("SourceApp Version: \(event.sourceAppVersion)")
                         .font(.caption)
                         .foregroundColor(.blue)
-                    Button(action: onToggleIgnore) {
-                                            Text(isIgnored ? "Unignore" : "Ignore")
-                                                .font(.caption)
-                                                .foregroundColor(isIgnored ? .red : .blue)
-                                                .padding(.vertical, 4)
-                                                .padding(.horizontal, 8)
-                                                .background(Color.gray.opacity(0.2))
-                                                .cornerRadius(6)
-                                        }
                 }
                 .transition(.opacity.combined(with: .slide))
             }
@@ -389,68 +330,6 @@ struct LocationEventCard: View {
         .background(.white)
         .cornerRadius(12)
         .padding(.horizontal)
-        .onTapGesture {
-            withAnimation(.spring()) {
-                isExpanded.toggle()
-            }
-        }
+        .onTapGesture { withAnimation(.spring()) { isExpanded.toggle() } }
     }
 }
-
-//struct LocationEventCard: View {
-//    let event: LocationEvent
-//    
-//    var body: some View {
-//        HStack {
-//            // LEFT SIDE
-//            VStack(alignment: .leading, spacing: 8) {
-//                HStack(spacing: 6) {
-//                    Image(systemName: "exclamationmark.triangle.fill")
-//                        .foregroundColor(event.severity.color)
-//                    VStack(alignment: .leading, spacing: 2) {
-//                        Text(event.title)
-//                            .bold()
-//                        Text(event.subtitle)
-//                            .font(.subheadline)
-//                            .foregroundColor(.gray)
-//                    }
-//                }
-//                
-//                HStack(spacing: 16) {
-//                    Label(event.time, systemImage: "clock")
-//                        .font(.caption)
-//                        .foregroundColor(.gray)
-//                    
-//                    Label(event.deviceType, systemImage: "globe")
-//                        .font(.caption)
-//                        .foregroundColor(.gray)
-//                }
-//            }
-//            
-//            Spacer()
-//            // RIGHT SIDE
-//                        VStack(alignment: .trailing, spacing: 6) {
-//                            Text(event.severity.label)
-//                                .font(.caption)
-//                                .bold()
-//                                .padding(.horizontal, 8)
-//                                .padding(.vertical, 4)
-//                                .background(Color(hex:"#D9D9D9"))
-//                                .cornerRadius(8)
-//                            
-//                            HStack {
-//                                Image(systemName: "location")
-//                                    .font(.caption)
-//                                    .foregroundColor(.gray)
-//                                Text(event.location)
-//                                    .font(.caption)
-//                                    .foregroundColor(.gray)
-//                            }
-//                        }
-//                    }
-//                    .padding()
-//                    .background(.white)
-//                    .cornerRadius(12)
-//                    .padding(.horizontal)
-//                }
-//            }
