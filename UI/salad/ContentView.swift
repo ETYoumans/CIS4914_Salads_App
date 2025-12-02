@@ -252,12 +252,25 @@ struct GroupedAppCard: View {
                 Text(group.sourceApp)
                     .bold()
                 Spacer()
-                Text("\(group.count) accsses")
+                Text("\(group.count) accesses")
                     .foregroundColor(.blue)
             }
             
             if isExpanded {
                 Divider()
+                if let frequency = group.frequency {
+                                        Text("Frequency: \(String(format: "%.2f", frequency)) accesses/second")
+                                            .font(.caption)
+                                            .foregroundColor(.blue)
+                                    } else {
+                                        Text("Frequency: N/A")
+                                            .font(.caption)
+                                            .foregroundColor(.gray)
+                                    }
+                                    
+                                    Text("Last Check: \(group.timeLastCheck)")
+                                        .font(.caption)
+                                        .foregroundColor(.blue)
                 Button(action: onToggleIgnore) {
                     Text(isIgnored ? "Unignore App" : "Ignore App")
                         .font(.caption)
@@ -295,6 +308,25 @@ struct GroupedLocationEvents: Identifiable {
     
     var id: String { sourceApp } // stable ID
     var count: Int { events.count }
+    var frequency: Double? {
+            guard let firstEvent = events.min(by: { $0.time < $1.time }),
+                  let lastEvent = events.max(by: { $0.time < $1.time }) else { return nil }
+            
+            
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+            guard let firstDate = dateFormatter.date(from: firstEvent.time),
+                  let lastDate = dateFormatter.date(from: lastEvent.time) else { return nil }
+            
+            let timeInterval = lastDate.timeIntervalSince(firstDate) // T
+            return timeInterval > 0 ? Double(count) / timeInterval : nil
+        }
+        
+        // Get the time of the last event (most recent)
+        var timeLastCheck: String {
+            // Assuming events are sorted and the latest event is the last in the array
+            return events.last?.time ?? "Unknown"
+        }
 }
 
 // MARK: - Location Event Card

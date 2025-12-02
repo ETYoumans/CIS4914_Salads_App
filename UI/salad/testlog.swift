@@ -11,7 +11,7 @@ func testLogging() {
     // Create dummy LocationEvent entries
     let entry1 = LocationEvent(
         id: UUID(),
-        time: "12:11 PM",
+        time: "13:11 PM",
         sourceApp: "Find my",
         sourceAppVersion: "2.0",
         direction: "inbound",
@@ -22,7 +22,7 @@ func testLogging() {
 
     let entry2 = LocationEvent(
         id: UUID(),
-        time: "11:11 AM",
+        time: "12:11 AM",
         sourceApp: "Amazon",
         sourceAppVersion: "3.0",
         direction: "outbound",
