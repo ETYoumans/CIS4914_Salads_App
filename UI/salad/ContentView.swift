@@ -1,4 +1,6 @@
 import SwiftUI
+import Combine
+
 
 // MARK: - ContentView
 struct ContentView: View {
@@ -16,7 +18,7 @@ struct ContentView: View {
 
     private func loadAndConvertLogs() {
         self.events = loadLogs()
-        print("Loaded \(events.count) logs")
+        
     }
 
     var body: some View {
@@ -31,17 +33,26 @@ struct ContentView: View {
                 Group {
                     if selectedTab == "Monitor" {
                         MonitoringCard()
-                        StatusBar(events: $events)
+                        StatusBar(events: $events, ignoredApps: ignoredApps)
                         
                         HStack {
                             Text("Recent Activity")
                             Spacer()
+                            Button(action: deleteOldLogsFile) {
+                                Text("Delete Logs")
+                                    .foregroundColor(.white)
+                                    .padding(.vertical, 2)
+                                    .padding(.horizontal, 5)
+                                    .background(Color.red)
+                                    .cornerRadius(8)
+                            }
+
                         }
                         .padding(.top, 15)
                         
                         ScrollView {
                             VStack(spacing: 12) {
-                                ForEach(events) { event in
+                                ForEach(events.filter { !ignoredApps.contains($0.sourceApp) }) { event in
                                     LocationEventCard(
                                         event: event,
                                         isIgnored: ignoredApps.contains(event.sourceApp)
@@ -51,15 +62,16 @@ struct ContentView: View {
                                 }
                             }
                         }
+
                     } else if selectedTab == "Group" {
                         GroupedAppListView(
                             events: events,
                             ignoredApps: $ignoredApps,
                             onToggleIgnore: toggleIgnore
                         )
-                    } else if selectedTab == "Setting" {
+                    } /*else if selectedTab == "Setting" {
                         SettingsView()
-                    }
+                    }*/
                 }
                 
                 Spacer()
@@ -69,6 +81,9 @@ struct ContentView: View {
         .onAppear {
             print("testing...")
             testLogging()
+            loadAndConvertLogs()
+        }
+        .onReceive(Timer.publish(every: 1, on: .main, in: .common).autoconnect()) { _ in
             loadAndConvertLogs()
         }
     }
@@ -97,7 +112,7 @@ struct TabsView: View {
         HStack(spacing: 0) {
             tabButton(title: "Monitor")
             tabButton(title: "Group")
-            tabButton(title: "Setting")
+//            tabButton(title: "Setting")
         }
         .frame(height: 30)
         .background(Color.gray.opacity(0.3))
@@ -152,25 +167,13 @@ struct MonitoringCard: View {
 // MARK: - Status Bar
 struct StatusBar: View {
     @Binding var events: [LocationEvent]
-    
+    var ignoredApps: Set<String>
+
     var totalCount: Int { events.count }
+    var filteredCount: Int { events.filter { !ignoredApps.contains($0.sourceApp) }.count }
 
     var body: some View {
         HStack(spacing: 16) {
-            VStack {
-                Text("High Risk Today")
-                    .font(.system(size: 13, weight: .medium))
-                    .foregroundColor(.brown)
-            }
-            .frame(maxWidth: .infinity)
-            .padding()
-            .background(Color.white)
-            .cornerRadius(12)
-            .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(Color.blue, lineWidth: 2)
-            )
-            
             VStack {
                 Text("\(totalCount)")
                     .font(.title)
@@ -184,10 +187,25 @@ struct StatusBar: View {
             .padding()
             .background(Color.white)
             .cornerRadius(12)
+            VStack {
+                Text("\(filteredCount)")
+                    .font(.title)
+                    .foregroundColor(.blue)
+                    .bold()
+                Text("Filtered Access")
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundColor(.brown)
+            }
+            .frame(maxWidth: .infinity)
+            .padding()
+            .background(Color.white)
+            .cornerRadius(12)
+
         }
         .padding()
         .background(Color.gray.opacity(0.2))
         .cornerRadius(10)
+        
     }
 }
 
@@ -201,7 +219,7 @@ struct GroupedAppListView: View {
         let groupedDict = Dictionary(grouping: events, by: { $0.sourceApp })
         return groupedDict
             .map { GroupedLocationEvents(sourceApp: $0.key, events: $0.value) }
-            .sorted { $0.sourceApp < $1.sourceApp } // stable order
+            .sorted { $0.count > $1.count }
     }
 
     var body: some View {
@@ -234,7 +252,7 @@ struct GroupedAppCard: View {
                 Text(group.sourceApp)
                     .bold()
                 Spacer()
-                Text("\(group.count) events")
+                Text("\(group.count) accsses")
                     .foregroundColor(.blue)
             }
             
@@ -333,3 +351,4 @@ struct LocationEventCard: View {
         .onTapGesture { withAnimation(.spring()) { isExpanded.toggle() } }
     }
 }
+#Preview { ContentView() }
