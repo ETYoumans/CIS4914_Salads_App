@@ -14,7 +14,7 @@ Objectives:
 Notes: Use assertions to verify assumptions in the code, such as input validation
 
 */
-
+/*
 import Foundation
 
 class PacketLogger {
@@ -24,7 +24,7 @@ class PacketLogger {
 
     }
 
-    func logPacketBag(_ packets: [DataPacket]) {
+    func logPacketBag(_: [DataPacket]) {
         // Log a bag of packets to file
     }
 
@@ -44,3 +44,4 @@ class PacketLogger {
 
 
 }
+*/

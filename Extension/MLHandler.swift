@@ -10,26 +10,23 @@ Objectives:
 Notes: Use assertions to verify assumptions in the code, such as input validation
 
 */
-
+/*
 import CoreML
 
 class MLHandler {
-    private var model: MLModel
 
-    init(model: MLModel) {
-        self.model = model
-    }
 
-    func makePrediction(input: MLFeatureProvider) -> MLFeatureProvider? {
+    func makePrediction(input: [DataPacket]) {
         // Make prediction using the model
     }
 
     func updateModel(newModel: MLModel) {
-        self.model = newModel
+
     }
 
-    func interpretPrediction(_ prediction: MLFeatureProvider) -> Bool {
+    func interpretPrediction() -> Bool {
         // Interpret the prediction result and return a boolean indicating threat detection
         return true // Placeholder
     }
 }
+*/

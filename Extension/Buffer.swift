@@ -26,49 +26,36 @@ struct DataPacket {
     let payload: Data 
 }
 */
-
+/*
 class Buffer {
     private var packets: [DataPacket] = []
-    private let bufferTimeInterval: TimeInterval
-    private let bufferDropInterval: TimeInterval
-    
-    // Must be less than bufferTimeInterval
-    private let bufferCooldownInterval: TimeInterval
-    private let bufferMaxSize: Int
-    private var lastBatchTime: TimeInterval
+    private let bufferTimeInterval: Float
 
-    init(bufferTimeInterval: TimeInterval, bufferDropInterval: TimeInterval, bufferCooldownInterval: TimeInterval, bufferMaxSize: Int) {
+    init(bufferTimeInterval: Float) {
         self.bufferTimeInterval = bufferTimeInterval
-        self.bufferDropInterval = bufferDropInterval
-        self.bufferCooldownInterval = bufferCooldownInterval
-        self.bufferMaxSize = bufferMaxSize
-        lastBatchTime = Date()
+        startCleanupTimer()
     }
 
     func addPacket(_ packet: DataPacket) {
         packets.append(packet)
-        date: Date = Date()
-        for (p : packets){
-            if (date.timeIntervalSince(p.rawTimestamp) > bufferDropInterval) {
-                packets.removeFirst()
-            } else {
-                break
-            }
-        }
+        // Remove old packets
+    }
+
+    func startCleanupTimer() {
+
+    }
+
+    func removeExpiredPackets() {
+        // remove the expired packets based on timestamp
     }
 
     func getCurrentBuffer() -> [DataPacket] {
-        lastBatchTime = Date()
         return packets
     }
 
     func checkConditions() -> Bool {
-        if (packets.count >  bufferMaxSize && Date().timeIntervalSince(lastBatchTime) > bufferTimeInterval) 
-        || Date().timeIntervalSince(lastBatchTime) > bufferTimeInterval {
-            return true
-        } else {
-            return false
-        }
+        // Implement condition checks (e.g., number of packets, packet rate)
+        return false
     }
 
     func clearBuffer() {
@@ -76,3 +63,4 @@ class Buffer {
     }
 
 }
+*/
